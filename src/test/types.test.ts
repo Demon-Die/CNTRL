@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Tab, BrowserState } from "../types/browser";
 import type { ModelConfig, ModelTier, ProviderHealth } from "../types/ai";
+
 describe("Tab type shape", () => {
   it("accepts a valid fully-specified Tab object", () => {
     const tab: Tab = {
@@ -13,12 +14,14 @@ describe("Tab type shape", () => {
       fallback_mode: false,
       loaded: true,
     };
+
     expect(tab.id).toBeTruthy();
     expect(tab.url).toBe("https://example.com");
     expect(tab.is_background).toBe(false);
     expect(tab.fallback_mode).toBe(false);
     expect(tab.loaded).toBe(true);
   });
+
   it("accepts a background tab with optional favicon omitted", () => {
     const tab: Tab = {
       id: "550e8400-e29b-41d4-a716-446655440001",
@@ -29,26 +32,35 @@ describe("Tab type shape", () => {
       fallback_mode: false,
       loaded: false,
     };
+
     expect(tab.is_background).toBe(true);
     expect(tab.favicon).toBeUndefined();
   });
 });
+
 describe("BrowserState type shape", () => {
   it("accepts a valid BrowserState with tabs and activeTabId", () => {
     const state: BrowserState = {
       tabs: [],
       activeTabId: null,
     };
+
     expect(state.tabs).toEqual([]);
     expect(state.activeTabId).toBeNull();
   });
 });
+
 describe("ModelTier type", () => {
-  it("accepts all three tier values", () => {
-    const tiers: ModelTier[] = ["Local", "Freemium", "Premium"];
-    expect(tiers).toHaveLength(3);
-  });
+  it.each<ModelTier>(["Local", "Freemium", "Premium"])(
+    "accepts %s tier",
+    (tier) => {
+      const modelTier: ModelTier = tier;
+
+      expect(modelTier).toBe(tier);
+    }
+  );
 });
+
 describe("ModelConfig type shape", () => {
   it("accepts a minimal config with required fields", () => {
     const config: ModelConfig = {
@@ -57,9 +69,11 @@ describe("ModelConfig type shape", () => {
       ollama_url: "http://localhost:11434",
       selected_model: "meta-llama/llama-3-8b-instruct:free",
     };
+
     expect(config.tier).toBe("Freemium");
     expect(config.openrouter_key).toBeNull();
   });
+
   it("accepts a config with optional keys set", () => {
     const config: ModelConfig = {
       tier: "Freemium",
@@ -70,25 +84,35 @@ describe("ModelConfig type shape", () => {
       groq_key: null,
       hf_token: undefined,
     };
+
     expect(config.gemini_key).toBe("***stored***");
     expect(config.groq_key).toBeNull();
     expect(config.hf_token).toBeUndefined();
   });
 });
+
 describe("ProviderHealth type shape", () => {
-  it("accepts a healthy provider entry", () => {
-    const health: ProviderHealth = {
+  const providerCases: ProviderHealth[] = [
+    {
       provider: "Ollama",
       healthy: true,
-    };
-    expect(health.provider).toBe("Ollama");
-    expect(health.healthy).toBe(true);
-  });
-  it("accepts an unhealthy provider entry", () => {
-    const health: ProviderHealth = {
+    },
+    {
       provider: "Gemini",
       healthy: false,
-    };
-    expect(health.healthy).toBe(false);
-  });
+    },
+  ];
+
+  it.each(providerCases)(
+    "accepts $provider provider with healthy=$healthy",
+    ({ provider, healthy }) => {
+      const health: ProviderHealth = {
+        provider,
+        healthy,
+      };
+
+      expect(health.provider).toBe(provider);
+      expect(health.healthy).toBe(healthy);
+    }
+  );
 });
