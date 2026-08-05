@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { beforeAll, vi } from "vitest";
+
 class MockResizeObserver {
   observe(): void {}
   unobserve(): void {}
@@ -26,9 +27,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 vi.mock("@tauri-apps/api/event", () => ({
   listen: vi.fn().mockImplementation(() => {
-    return Promise.resolve(() => {
-      
-    });
+    return Promise.resolve(() => {});
   }),
 }));
 vi.mock("@tauri-apps/plugin-os", () => ({

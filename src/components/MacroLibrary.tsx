@@ -1,4 +1,5 @@
-import { Component, createSignal, onMount, onCleanup, For, Show } from "solid-js";import { macroState, macroActions } from "../stores/macroStore";
+import { Component, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { macroActions, macroState } from "../stores/macroStore";
 import "./MacroLibrary.css";
 
 interface MacroLibraryProps {
@@ -10,7 +11,7 @@ export const MacroLibrary: Component<MacroLibraryProps> = (props) => {
   const [scheduleCron, setScheduleCron] = createSignal("");
   const [activeScheduleId, setActiveScheduleId] = createSignal<string | null>(null);
 
-onMount(() => {
+  onMount(() => {
     macroActions.fetchMacros();
     macroActions.fetchScheduled();
 
@@ -34,7 +35,7 @@ onMount(() => {
 
   return (
     <div class="macro-library-overlay" onClick={props.onClose}>
-<div
+      <div
         class="macro-library-modal"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -43,7 +44,11 @@ onMount(() => {
       >
         <div class="macro-library-header">
           <h2 id="macro-library-heading">Macro Library (Vibe Automations)</h2>
-          <button class="macro-library-close" onClick={props.onClose} aria-label="Close macro library">
+          <button
+            class="macro-library-close"
+            onClick={props.onClose}
+            aria-label="Close macro library"
+          >
             ✕
           </button>
         </div>
@@ -60,14 +65,15 @@ onMount(() => {
             >
               <div class="macro-save-form">
                 <div class="schedule-badge">● RECORDING</div>
-<input
+                <input
                   type="text"
                   class="macro-input"
                   aria-label="Macro name"
                   placeholder="Name your macro..."
                   value={macroName()}
                   onInput={(e) => setMacroName(e.currentTarget.value)}
-                />                <button class="btn-primary" onClick={handleStopRecording} disabled={!macroName()}>
+                />{" "}
+                <button class="btn-primary" onClick={handleStopRecording} disabled={!macroName()}>
                   Save Macro
                 </button>
                 <button class="btn-danger" onClick={() => macroActions.cancelRecording()}>
@@ -79,7 +85,12 @@ onMount(() => {
 
           {/* Macro List */}
           <div class="macro-list">
-            <Show when={macroState.macros.length > 0} fallback={<div class="empty-state">No macros saved yet. Start recording to create one.</div>}>
+            <Show
+              when={macroState.macros.length > 0}
+              fallback={
+                <div class="empty-state">No macros saved yet. Start recording to create one.</div>
+              }
+            >
               <For each={macroState.macros}>
                 {(macro) => {
                   const schedule = () => macroState.scheduled.find((s) => s.macro_id === macro.id);
@@ -97,7 +108,10 @@ onMount(() => {
                         <div class="macro-actions">
                           <Show when={schedule()}>
                             <div class="schedule-badge">⏱ {schedule()?.cron}</div>
-                            <button class="btn-secondary" onClick={() => macroActions.unscheduleMacro(macro.id)}>
+                            <button
+                              class="btn-secondary"
+                              onClick={() => macroActions.unscheduleMacro(macro.id)}
+                            >
                               Unschedule
                             </button>
                           </Show>
@@ -106,19 +120,23 @@ onMount(() => {
                             <Show
                               when={isScheduling()}
                               fallback={
-                                <button class="btn-secondary" onClick={() => setActiveScheduleId(macro.id)}>
+                                <button
+                                  class="btn-secondary"
+                                  onClick={() => setActiveScheduleId(macro.id)}
+                                >
                                   Schedule
                                 </button>
                               }
                             >
                               <div class="macro-schedule-form">
-<input
+                                <input
                                   type="text"
                                   aria-label={`Schedule for ${macro.name} (cron expression)`}
                                   placeholder="* * * * * *"
                                   value={scheduleCron()}
                                   onInput={(e) => setScheduleCron(e.currentTarget.value)}
-                                />                                <button
+                                />{" "}
+                                <button
                                   class="btn-primary"
                                   onClick={async () => {
                                     if (scheduleCron()) {
@@ -130,17 +148,26 @@ onMount(() => {
                                 >
                                   Set
                                 </button>
-                                <button class="btn-secondary" onClick={() => setActiveScheduleId(null)}>
+                                <button
+                                  class="btn-secondary"
+                                  onClick={() => setActiveScheduleId(null)}
+                                >
                                   Cancel
                                 </button>
                               </div>
                             </Show>
                           </Show>
 
-                          <button class="btn-primary" onClick={() => macroActions.runMacro(macro.id)}>
+                          <button
+                            class="btn-primary"
+                            onClick={() => macroActions.runMacro(macro.id)}
+                          >
                             ▶ Play
                           </button>
-                          <button class="btn-danger" onClick={() => macroActions.deleteMacro(macro.id)}>
+                          <button
+                            class="btn-danger"
+                            onClick={() => macroActions.deleteMacro(macro.id)}
+                          >
                             Delete
                           </button>
                         </div>

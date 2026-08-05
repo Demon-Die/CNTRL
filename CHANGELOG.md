@@ -2,6 +2,11 @@
 
 All notable changes to the CNTRL Browser project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **CI Pipeline**: Restored 100% green CI pipeline across `npm run build`, Biome formatting, ESLint, TypeScript check, Vitest unit tests, Cargo clippy, Cargo fmt, and Cargo test suite.
+
 ## [0.1.0] - 2026-07-19
 
 ### Added

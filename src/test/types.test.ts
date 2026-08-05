@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Tab, BrowserState } from "../types/browser";
 import type { ModelConfig, ModelTier, ProviderHealth } from "../types/ai";
+import type { BrowserState, Tab } from "../types/browser";
+
 describe("Tab type shape", () => {
   it("accepts a valid fully-specified Tab object", () => {
     const tab: Tab = {

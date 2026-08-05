@@ -1,14 +1,14 @@
 import { listen } from "@tauri-apps/api/event";
-import { onCleanup, onMount, createSignal, createEffect, Show } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { CommandBar } from "./components/CommandBar";
+import { MacroLibrary } from "./components/MacroLibrary";
 import { TabBar } from "./components/TabBar";
 import { UrlBar } from "./components/UrlBar";
 import { WebView } from "./components/WebView";
+import { eventBus } from "./core/events";
 import { initAiStore } from "./stores/aiStore";
 import { browserActions, browserState } from "./stores/browserStore";
-import { CommandBar } from "./components/CommandBar";
-import { eventBus } from "./core/events";
-import { MacroLibrary } from "./components/MacroLibrary";
-import { macroState, macroActions } from "./stores/macroStore";
+import { macroActions, macroState } from "./stores/macroStore";
 import "./App.css";
 
 function App() {
@@ -70,7 +70,11 @@ function App() {
       <CommandBar />
 
       <Show when={macroState.isRecording}>
-        <div class="macro-recording-badge" onClick={() => setShowMacroLibrary(true)} style="cursor: pointer; pointer-events: auto;">
+        <div
+          class="macro-recording-badge"
+          onClick={() => setShowMacroLibrary(true)}
+          style="cursor: pointer; pointer-events: auto;"
+        >
           <span class="recording-dot">●</span> RECORDING MACRO
         </div>
       </Show>

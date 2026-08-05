@@ -1,6 +1,6 @@
 export interface Tab {
   readonly id: string;
-  
+
   url: string;
   title: string;
   favicon?: string | undefined;

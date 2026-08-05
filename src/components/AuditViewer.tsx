@@ -1,5 +1,5 @@
-import { Component, createSignal, onMount, For, Show } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
+import { Component, createSignal, For, onMount, Show } from "solid-js";
 import "./AuditViewer.css";
 interface AuditEntry {
   id: string;
@@ -38,7 +38,6 @@ export const AuditViewer: Component = () => {
   });
   const filteredEntries = () => {
     return entries().filter((entry) => {
-      
       if (filterType() === "ai" && entry.entry_type !== "ai_call") return false;
       if (filterType() === "credential" && entry.entry_type !== "credential_access") return false;
       const query = searchQuery().toLowerCase().trim();
@@ -166,7 +165,10 @@ export const AuditViewer: Component = () => {
                       </span>
                     </td>
                     <td>
-                      <Show when={entry.entry_type === "ai_call"} fallback={entry.credential_service}>
+                      <Show
+                        when={entry.entry_type === "ai_call"}
+                        fallback={entry.credential_service}
+                      >
                         {entry.provider_name} ({entry.tier_used})
                       </Show>
                     </td>
@@ -178,9 +180,7 @@ export const AuditViewer: Component = () => {
                     <td>
                       <Show
                         when={entry.entry_type === "ai_call"}
-                        fallback={
-                          <span class="audit-badge key">{entry.access_type}</span>
-                        }
+                        fallback={<span class="audit-badge key">{entry.access_type}</span>}
                       >
                         <span class={`audit-badge ${entry.success ? "success" : "failed"}`}>
                           {entry.success ? "OK" : "Error"}
@@ -207,7 +207,11 @@ export const AuditViewer: Component = () => {
           <button class="audit-page-btn" onClick={handlePrevPage} disabled={currentPage() === 1}>
             Previous
           </button>
-          <button class="audit-page-btn" onClick={handleNextPage} disabled={currentPage() === totalPages()}>
+          <button
+            class="audit-page-btn"
+            onClick={handleNextPage}
+            disabled={currentPage() === totalPages()}
+          >
             Next
           </button>
         </div>

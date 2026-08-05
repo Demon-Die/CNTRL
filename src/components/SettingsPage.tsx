@@ -1,19 +1,30 @@
-import {
-  Component,
-  For,
-  Show,
-  createSignal,
-  onMount,
-} from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
-import { askAi, getHfModels, getOpenRouterFreeModels, healthCheckAll, testIntentRouter } from "../stores/aiStore";
+import { Component, createSignal, For, onMount, Show } from "solid-js";
+import {
+  askAi,
+  getHfModels,
+  getOpenRouterFreeModels,
+  healthCheckAll,
+  testIntentRouter,
+} from "../stores/aiStore";
 import type { ProviderHealth } from "../types";
 import "./SettingsPage.css";
 import { browserActions } from "../stores/browserStore";
 import { AuditViewer } from "./AuditViewer";
 import { PluginManager } from "./PluginManager";
+
 const IconBot = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <rect width="18" height="10" x="3" y="11" rx="2" />
     <circle cx="12" cy="5" r="2" />
     <path d="M12 7v4" />
@@ -22,7 +33,17 @@ const IconBot = () => (
   </svg>
 );
 const IconKey = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <circle cx="7.5" cy="15.5" r="5.5" />
     <path d="m21 2-9.6 9.6" />
     <path d="m15.5 7.5 3 3L22 7l-3-3" />
@@ -30,29 +51,78 @@ const IconKey = () => (
 );
 
 const IconSparkles = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-    <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+    <path d="M5 3v4" />
+    <path d="M19 17v4" />
+    <path d="M3 5h4" />
+    <path d="M17 19h4" />
   </svg>
 );
 const IconBoxes = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z" />
-    <path d="m7 16.5-4.74-2.85" /><path d="m7 16.5 5-3" /><path d="M7 16.5v5.17" />
+    <path d="m7 16.5-4.74-2.85" />
+    <path d="m7 16.5 5-3" />
+    <path d="M7 16.5v5.17" />
     <path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z" />
-    <path d="m17 16.5-5-3" /><path d="m17 16.5 4.74-2.85" /><path d="M17 16.5v5.17" />
+    <path d="m17 16.5-5-3" />
+    <path d="m17 16.5 4.74-2.85" />
+    <path d="M17 16.5v5.17" />
     <path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z" />
-    <path d="M12 8 7.26 5.15" /><path d="m12 8 4.74-2.85" /><path d="M12 13.5V8" />
+    <path d="M12 8 7.26 5.15" />
+    <path d="m12 8 4.74-2.85" />
+    <path d="M12 13.5V8" />
   </svg>
 );
 const IconEye = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
 const IconEyeOff = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
     <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
     <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
@@ -60,7 +130,17 @@ const IconEyeOff = () => (
   </svg>
 );
 const IconLoader = () => (
-  <svg class="sp-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+  <svg
+    class="sp-spin"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    aria-hidden="true"
+  >
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
   </svg>
 );
@@ -74,16 +154,18 @@ interface ProviderKeyEntry {
 }
 const PROVIDER_KEYS: ProviderKeyEntry[] = [
   { id: "openrouter", label: "OpenRouter API Key", placeholder: "sk-or-v1-…" },
-  { id: "gemini",     label: "Google Gemini API Key", placeholder: "AIza…" },
-  { id: "groq",       label: "Groq API Key", placeholder: "gsk_…" },
-  { id: "huggingface",label: "HuggingFace Token", placeholder: "hf_…" },
+  { id: "gemini", label: "Google Gemini API Key", placeholder: "AIza…" },
+  { id: "groq", label: "Groq API Key", placeholder: "gsk_…" },
+  { id: "huggingface", label: "HuggingFace Token", placeholder: "hf_…" },
 ];
 
 export const SettingsPage: Component = () => {
   const [keyInputs, setKeyInputs] = createSignal<Record<string, string>>({});
   const [showKeys, setShowKeys] = createSignal<Record<string, boolean>>({});
-  const [keySaveStatus, setKeySaveStatus] = createSignal<Record<string, "idle" | "saving" | "saved" | "error">>({});
-  
+  const [keySaveStatus, setKeySaveStatus] = createSignal<
+    Record<string, "idle" | "saving" | "saved" | "error">
+  >({});
+
   const [ollamaUrl, setOllamaUrl] = createSignal("http://localhost:11434");
   const [ollamaModel, setOllamaModel] = createSignal("llama3");
   const [testPrompt, setTestPrompt] = createSignal("What is the capital of France?");
@@ -94,7 +176,7 @@ export const SettingsPage: Component = () => {
   const [isScoring, setIsScoring] = createSignal(false);
   const [userAgent, setUserAgent] = createSignal("");
   const [isLoadingBrowserConfig] = createSignal(true);
-  
+
   const [hfModels, setHfModels] = createSignal<string[]>([]);
   const [orModels, setOrModels] = createSignal<string[]>([]);
   const [isLoadingModels, setIsLoadingModels] = createSignal(false);
@@ -103,7 +185,7 @@ export const SettingsPage: Component = () => {
 
   const [providerHealth, setProviderHealth] = createSignal<ProviderHealth[]>([]);
   const [isCheckingHealth, setIsCheckingHealth] = createSignal(false);
-  
+
   onMount(async () => {
     const statuses: Record<string, string> = {};
     for (const p of PROVIDER_KEYS) {
@@ -119,7 +201,7 @@ export const SettingsPage: Component = () => {
     if (hf.status === "fulfilled") setHfModels(hf.value);
     if (or_.status === "fulfilled") setOrModels(or_.value);
     setIsLoadingModels(false);
-    
+
     try {
       const pEnabled = await invoke<boolean>("is_privacy_mode_enabled");
       setPrivacyEnabled(pEnabled);
@@ -221,7 +303,9 @@ export const SettingsPage: Component = () => {
     <div class="sp-page">
       <div class="sp-content">
         <header class="sp-header">
-          <div class="sp-header-icon"><IconBoxes /></div>
+          <div class="sp-header-icon">
+            <IconBoxes />
+          </div>
           <div>
             <h1 class="sp-title">CNTRL Settings</h1>
             <p class="sp-subtitle">Configure AI providers and inspect connection health</p>
@@ -230,8 +314,12 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="advanced-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconKey /></span>
-            <h2 class="sp-card-title" id="advanced-heading">Advanced Settings</h2>
+            <span class="sp-card-icon">
+              <IconKey />
+            </span>
+            <h2 class="sp-card-title" id="advanced-heading">
+              Advanced Settings
+            </h2>
           </div>
           <div class="sp-field">
             <label class="sp-label" for="sp-user-agent">
@@ -262,8 +350,12 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="privacy-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconEye /></span>
-            <h2 class="sp-card-title" id="privacy-heading">Privacy & Security</h2>
+            <span class="sp-card-icon">
+              <IconEye />
+            </span>
+            <h2 class="sp-card-title" id="privacy-heading">
+              Privacy & Security
+            </h2>
           </div>
           <div class="sp-field">
             <div class="privacy-toggle-row">
@@ -272,7 +364,8 @@ export const SettingsPage: Component = () => {
                   Privacy Guard Mode
                 </label>
                 <p class="sp-hint">
-                  When enabled, all remote AI calls (Tier 2/3) are blocked. Only local Ollama (Tier 1) can be used.
+                  When enabled, all remote AI calls (Tier 2/3) are blocked. Only local Ollama (Tier
+                  1) can be used.
                 </p>
               </div>
               <label class="privacy-switch">
@@ -296,30 +389,40 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="health-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconSparkles /></span>
-            <h2 class="sp-card-title" id="health-heading">Provider Health</h2>
+            <span class="sp-card-icon">
+              <IconSparkles />
+            </span>
+            <h2 class="sp-card-title" id="health-heading">
+              Provider Health
+            </h2>
           </div>
           <div class="sp-health-grid" role="list" aria-label="Provider health status">
-            <Show when={isCheckingHealth()} fallback={
-              <Show when={providerHealth().length > 0} fallback={
-                <p class="sp-hint">No providers checked yet.</p>
-              }>
-                <For each={providerHealth()}>
-                  {(entry) => (
-                    <div class="sp-health-row" role="listitem">
-                      <span
-                        class={`status-dot ${entry.healthy ? "success" : "error"}`}
-                        aria-label={entry.healthy ? "healthy" : "unreachable"}
-                      />
-                      <span class="sp-health-name">{entry.provider}</span>
-                      <span class={`sp-health-label ${entry.healthy ? "sp-text-success" : "sp-text-danger"}`}>
-                        {entry.healthy ? "OK" : "OFFLINE"}
-                      </span>
-                    </div>
-                  )}
-                </For>
-              </Show>
-            }>
+            <Show
+              when={isCheckingHealth()}
+              fallback={
+                <Show
+                  when={providerHealth().length > 0}
+                  fallback={<p class="sp-hint">No providers checked yet.</p>}
+                >
+                  <For each={providerHealth()}>
+                    {(entry) => (
+                      <div class="sp-health-row" role="listitem">
+                        <span
+                          class={`status-dot ${entry.healthy ? "success" : "error"}`}
+                          aria-label={entry.healthy ? "healthy" : "unreachable"}
+                        />
+                        <span class="sp-health-name">{entry.provider}</span>
+                        <span
+                          class={`sp-health-label ${entry.healthy ? "sp-text-success" : "sp-text-danger"}`}
+                        >
+                          {entry.healthy ? "OK" : "OFFLINE"}
+                        </span>
+                      </div>
+                    )}
+                  </For>
+                </Show>
+              }
+            >
               <div class="sp-status sp-status-processing">
                 <IconLoader />
                 <span>Checking providers…</span>
@@ -342,8 +445,12 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="auth-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconKey /></span>
-            <h2 class="sp-card-title" id="auth-heading">API Keys</h2>
+            <span class="sp-card-icon">
+              <IconKey />
+            </span>
+            <h2 class="sp-card-title" id="auth-heading">
+              API Keys
+            </h2>
           </div>
           <p class="sp-hint" style="margin-bottom: 1rem;">
             Keys are stored in the OS keychain — never on disk or in any database.
@@ -392,7 +499,11 @@ export const SettingsPage: Component = () => {
                       disabled={status() === "saving" || !value()}
                       aria-busy={status() === "saving"}
                     >
-                      {status() === "saving" ? "Saving…" : status() === "saved" ? "Saved ✓" : "Save"}
+                      {status() === "saving"
+                        ? "Saving…"
+                        : status() === "saved"
+                          ? "Saved ✓"
+                          : "Save"}
                     </button>
                     <Show when={value()}>
                       <button
@@ -417,11 +528,17 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="ollama-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconBot /></span>
-            <h2 class="sp-card-title" id="ollama-heading">Ollama (Local / Tier 1)</h2>
+            <span class="sp-card-icon">
+              <IconBot />
+            </span>
+            <h2 class="sp-card-title" id="ollama-heading">
+              Ollama (Local / Tier 1)
+            </h2>
           </div>
           <div class="sp-field">
-            <label class="sp-label" for="sp-ollama-url">Ollama API URL</label>
+            <label class="sp-label" for="sp-ollama-url">
+              Ollama API URL
+            </label>
             <input
               id="sp-ollama-url"
               class="sp-input"
@@ -432,7 +549,9 @@ export const SettingsPage: Component = () => {
             />
           </div>
           <div class="sp-field">
-            <label class="sp-label" for="sp-ollama-model">Model</label>
+            <label class="sp-label" for="sp-ollama-model">
+              Model
+            </label>
             <input
               id="sp-ollama-model"
               class="sp-input"
@@ -446,35 +565,58 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="models-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconBoxes /></span>
-            <h2 class="sp-card-title" id="models-heading">Available Models</h2>
+            <span class="sp-card-icon">
+              <IconBoxes />
+            </span>
+            <h2 class="sp-card-title" id="models-heading">
+              Available Models
+            </h2>
           </div>
-          <Show when={isLoadingModels()} fallback={
-            <div class="sp-model-cols">
-              <div>
-                <p class="sp-label" style="margin-bottom: 0.5rem;">OpenRouter Free Models ({orModels().length})</p>
-                <ul class="sp-model-list" role="list" aria-label="OpenRouter free models">
-                  <For each={orModels().slice(0, 8)}>
-                    {(m) => <li class="sp-model-item" role="listitem">{m}</li>}
-                  </For>
-                  <Show when={orModels().length > 8}>
-                    <li class="sp-model-item sp-text-secondary" role="listitem">+{orModels().length - 8} more…</li>
-                  </Show>
-                </ul>
+          <Show
+            when={isLoadingModels()}
+            fallback={
+              <div class="sp-model-cols">
+                <div>
+                  <p class="sp-label" style="margin-bottom: 0.5rem;">
+                    OpenRouter Free Models ({orModels().length})
+                  </p>
+                  <ul class="sp-model-list" role="list" aria-label="OpenRouter free models">
+                    <For each={orModels().slice(0, 8)}>
+                      {(m) => (
+                        <li class="sp-model-item" role="listitem">
+                          {m}
+                        </li>
+                      )}
+                    </For>
+                    <Show when={orModels().length > 8}>
+                      <li class="sp-model-item sp-text-secondary" role="listitem">
+                        +{orModels().length - 8} more…
+                      </li>
+                    </Show>
+                  </ul>
+                </div>
+                <div>
+                  <p class="sp-label" style="margin-bottom: 0.5rem;">
+                    HuggingFace Models ({hfModels().length})
+                  </p>
+                  <ul class="sp-model-list" role="list" aria-label="HuggingFace models">
+                    <For each={hfModels().slice(0, 8)}>
+                      {(m) => (
+                        <li class="sp-model-item" role="listitem">
+                          {m}
+                        </li>
+                      )}
+                    </For>
+                    <Show when={hfModels().length > 8}>
+                      <li class="sp-model-item sp-text-secondary" role="listitem">
+                        +{hfModels().length - 8} more…
+                      </li>
+                    </Show>
+                  </ul>
+                </div>
               </div>
-              <div>
-                <p class="sp-label" style="margin-bottom: 0.5rem;">HuggingFace Models ({hfModels().length})</p>
-                <ul class="sp-model-list" role="list" aria-label="HuggingFace models">
-                  <For each={hfModels().slice(0, 8)}>
-                    {(m) => <li class="sp-model-item" role="listitem">{m}</li>}
-                  </For>
-                  <Show when={hfModels().length > 8}>
-                    <li class="sp-model-item sp-text-secondary" role="listitem">+{hfModels().length - 8} more…</li>
-                  </Show>
-                </ul>
-              </div>
-            </div>
-          }>
+            }
+          >
             <div class="sp-status sp-status-processing">
               <IconLoader />
               <span>Loading model lists…</span>
@@ -484,11 +626,17 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="test-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconSparkles /></span>
-            <h2 class="sp-card-title" id="test-heading">Test AI Connection</h2>
+            <span class="sp-card-icon">
+              <IconSparkles />
+            </span>
+            <h2 class="sp-card-title" id="test-heading">
+              Test AI Connection
+            </h2>
           </div>
           <div class="sp-field">
-            <label class="sp-label" for="sp-test-prompt">Prompt</label>
+            <label class="sp-label" for="sp-test-prompt">
+              Prompt
+            </label>
             <input
               id="sp-test-prompt"
               class="sp-input"
@@ -523,8 +671,12 @@ export const SettingsPage: Component = () => {
         {}
         <section class="sp-card" aria-labelledby="router-heading">
           <div class="sp-card-header">
-            <span class="sp-card-icon"><IconBoxes /></span>
-            <h2 class="sp-card-title" id="router-heading">Intent Router</h2>
+            <span class="sp-card-icon">
+              <IconBoxes />
+            </span>
+            <h2 class="sp-card-title" id="router-heading">
+              Intent Router
+            </h2>
             <p class="sp-card-desc">Run 10 sample prompts through the complexity scorer.</p>
           </div>
 
@@ -556,7 +708,7 @@ export const SettingsPage: Component = () => {
           </Show>
           <AuditViewer />
         </section>
-        
+
         <PluginManager />
       </div>
     </div>

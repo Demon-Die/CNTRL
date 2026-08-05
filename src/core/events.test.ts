@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { eventBus } from "./events";
 
 describe("EventBus", () => {
@@ -35,19 +35,19 @@ describe("EventBus", () => {
 
     expect(callback).not.toHaveBeenCalled();
   });
-  
+
   it("should handle multiple listeners", () => {
     const callback1 = vi.fn();
     const callback2 = vi.fn();
-    
+
     eventBus.on("TAB_CLOSE_ACTIVE", callback1);
     eventBus.on("TAB_CLOSE_ACTIVE", callback2);
-    
+
     eventBus.emit("TAB_CLOSE_ACTIVE");
-    
+
     expect(callback1).toHaveBeenCalledTimes(1);
     expect(callback2).toHaveBeenCalledTimes(1);
-    
+
     eventBus.off("TAB_CLOSE_ACTIVE", callback1);
     eventBus.off("TAB_CLOSE_ACTIVE", callback2);
   });

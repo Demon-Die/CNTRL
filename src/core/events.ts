@@ -34,7 +34,10 @@ class EventBus {
   /**
    * Emit an event to all subscribers.
    */
-  emit<K extends EventKey>(event: K, ...args: EventMap[K] extends void ? [undefined?] : [EventMap[K]]) {
+  emit<K extends EventKey>(
+    event: K,
+    ...args: EventMap[K] extends void ? [undefined?] : [EventMap[K]]
+  ) {
     const callbacks = this.listeners.get(event);
     if (!callbacks) return;
     const payload = args[0] as EventMap[K];

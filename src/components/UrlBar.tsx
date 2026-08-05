@@ -3,7 +3,15 @@ import { Component, createEffect, createSignal, onCleanup, onMount } from "solid
 import { browserActions, browserState } from "../stores/browserStore";
 import "./UrlBar.css";
 
-import { AlertIcon, BackIcon, ForwardIcon, LockIcon, ReloadIcon, SettingsIcon, StopIcon } from "./Icons";
+import {
+  AlertIcon,
+  BackIcon,
+  ForwardIcon,
+  LockIcon,
+  ReloadIcon,
+  SettingsIcon,
+  StopIcon,
+} from "./Icons";
 
 export const UrlBar: Component = () => {
   const [inputUrl, setInputUrl] = createSignal("");
@@ -52,7 +60,7 @@ export const UrlBar: Component = () => {
         handleForward();
         return;
       }
-    }; 
+    };
     window.addEventListener("keydown", handler);
     onCleanup(() => window.removeEventListener("keydown", handler));
   });
@@ -132,7 +140,12 @@ export const UrlBar: Component = () => {
         <button class="nav-btn" onClick={handleForward} title="Forward" aria-label="Go forward">
           <ForwardIcon />
         </button>
-        <button class="nav-btn" onClick={handleReload} title={isLoading() ? "Stop" : "Reload"} aria-label={isLoading() ? "Stop loading" : "Reload page"}>
+        <button
+          class="nav-btn"
+          onClick={handleReload}
+          title={isLoading() ? "Stop" : "Reload"}
+          aria-label={isLoading() ? "Stop loading" : "Reload page"}
+        >
           {isLoading() ? <StopIcon /> : <ReloadIcon />}
         </button>
       </div>
@@ -168,9 +181,20 @@ export const UrlBar: Component = () => {
             compat mode
           </span>
         )}
-<button class="nav-btn" onClick={handleOpenExternal} title="Open in External Browser" aria-label="Open in external browser">
+        <button
+          class="nav-btn"
+          onClick={handleOpenExternal}
+          title="Open in External Browser"
+          aria-label="Open in external browser"
+        >
           <span>Open</span>
-        </button>        <button class="settings-icon-btn" onClick={handleOpenSettings} title="Settings" aria-label="Open settings">
+        </button>{" "}
+        <button
+          class="settings-icon-btn"
+          onClick={handleOpenSettings}
+          title="Settings"
+          aria-label="Open settings"
+        >
           <SettingsIcon />
         </button>
       </div>

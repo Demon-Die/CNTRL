@@ -8,9 +8,9 @@ export function getStoredTheme(): Theme {
 export function applyTheme(theme: Theme) {
   const resolvedTheme =
     theme === "system"
-      ? (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light")
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
       : theme;
 
   document.documentElement.setAttribute("data-theme", resolvedTheme);

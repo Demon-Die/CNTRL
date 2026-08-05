@@ -35,7 +35,7 @@ export class LRUCache<K, V> implements ICache<K, V> {
     }
 
     const entry = this.cache.get(key)!;
-    
+
     // Check TTL
     if (entry.expiry !== null && Date.now() > entry.expiry) {
       this.cache.delete(key);

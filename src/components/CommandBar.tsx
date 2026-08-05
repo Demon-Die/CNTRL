@@ -1,11 +1,11 @@
-import { Component, createSignal, onCleanup, onMount, For, Show } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { marked } from "marked";
+import { Component, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import "./CommandBar.css";
-import { SparklesIcon } from "./Icons";
 import { macroState } from "../stores/macroStore";
+import { SparklesIcon } from "./Icons";
 
 interface StepStatusEvent {
   step_index: number;
@@ -52,7 +52,6 @@ export const CommandBar: Component = () => {
     window.addEventListener("keydown", handleGlobalKeyDown);
     void checkPrivacyMode();
 
-
     unlisten = await listen<StepStatusEvent>("intent://step-status", (event) => {
       const payload = event.payload;
       setSteps((prev) => {
@@ -67,7 +66,10 @@ export const CommandBar: Component = () => {
         return newSteps;
       });
 
-      if (payload.step_index === payload.total_steps - 1 && (payload.status === "Done" || payload.status === "Failed")) {
+      if (
+        payload.step_index === payload.total_steps - 1 &&
+        (payload.status === "Done" || payload.status === "Failed")
+      ) {
         setIsProcessing(false);
       }
     });
@@ -84,11 +86,11 @@ export const CommandBar: Component = () => {
     if (!query || isProcessing()) return;
 
     setIsProcessing(true);
-    setSteps([]); 
+    setSteps([]);
 
     try {
       await invoke("submit_intent", { input: query });
-      
+
       // Phase 6: If recording, capture this intent
       if (macroState.isRecording) {
         try {
@@ -115,30 +117,39 @@ export const CommandBar: Component = () => {
 
   return (
     <Show when={isOpen()}>
-<div class="cmd-bar-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}>
+      <div
+        class="cmd-bar-overlay"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setIsOpen(false);
+        }}
+      >
         <div
           class={`cmd-bar ${isPrivacyEnabled() ? "privacy-active" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label="Command bar"
-        >          <form class="cmd-bar-input-wrapper" onSubmit={handleSubmit}>
+        >
+          {" "}
+          <form class="cmd-bar-input-wrapper" onSubmit={handleSubmit}>
             <SparklesIcon />
             <input
-ref={inputRef}
+              ref={inputRef}
               class="cmd-bar-input"
               type="text"
               aria-label="Command input"
-              placeholder="What do you want to do? (e.g. 'go to github', 'bitcoin price')"              value={input()}
+              placeholder="What do you want to do? (e.g. 'go to github', 'bitcoin price')"
+              value={input()}
               onInput={(e) => setInput(e.currentTarget.value)}
               disabled={isProcessing()}
               autocomplete="off"
               spellcheck={false}
             />
             <Show when={isPrivacyEnabled()}>
-              <span class="cmd-privacy-badge" title="Privacy mode active: remote AI blocked.">Privacy Active</span>
+              <span class="cmd-privacy-badge" title="Privacy mode active: remote AI blocked.">
+                Privacy Active
+              </span>
             </Show>
           </form>
-
           <Show when={steps().length > 0}>
             <div class="cmd-bar-results">
               <For each={steps()}>
@@ -151,10 +162,7 @@ ref={inputRef}
                       </span>
                     </div>
                     <Show when={step.result}>
-                      <div
-                        class="cmd-step-result"
-                        innerHTML={renderMarkdown(step.result!)}
-                      />
+                      <div class="cmd-step-result" innerHTML={renderMarkdown(step.result!)} />
                     </Show>
                   </div>
                 )}

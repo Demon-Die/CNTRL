@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { createStore } from "solid-js/store";
-import { LRUCache } from "../utils/cache";
 import type { IntentRouterResult, ModelConfig, ModelTier } from "../types";
-export type { ModelConfig, ModelTier, IntentRouterResult };
+import { LRUCache } from "../utils/cache";
+
+export type { IntentRouterResult, ModelConfig, ModelTier };
 
 const modelCache = new LRUCache<string, string[]>(10, 5 * 60 * 1000); // 5 minutes TTL
 
@@ -12,9 +13,7 @@ export const [aiState, setAiState] = createStore<ModelConfig>({
   ollama_url: "http://localhost:11434",
   selected_model: "meta-llama/llama-3-8b-instruct:free",
 });
-export const initAiStore = async (): Promise<void> => {
-  
-};
+export const initAiStore = async (): Promise<void> => {};
 export const askAi = async (prompt: string): Promise<string> => {
   return invoke<string>("ask_ai", { prompt });
 };
@@ -44,9 +43,7 @@ export const getOpenRouterFreeModels = async (): Promise<string[]> => {
     return [];
   }
 };
-export const testIntentRouter = async (
-  intents: string[]
-): Promise<[string, number, string][]> => {
+export const testIntentRouter = async (intents: string[]): Promise<[string, number, string][]> => {
   try {
     return await invoke<[string, number, string][]>("test_intent_router", { intents });
   } catch (error) {

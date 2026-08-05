@@ -1,4 +1,4 @@
-import { Component, For, Show, createSignal, onMount } from "solid-js";
+import { Component, createSignal, For, onMount, Show } from "solid-js";
 import "./PluginManager.css";
 
 // unused interface removed
@@ -13,7 +13,17 @@ interface PluginManifest {
 }
 
 const IconPlug = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="M12 22v-5" />
     <path d="M9 8V2" />
     <path d="M15 8V2" />
@@ -22,7 +32,17 @@ const IconPlug = () => (
 );
 
 const IconShield = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
     <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.94 0 4.96 1 6.94 2a1 1 0 0 1 1.06 1v7Z" />
   </svg>
 );
@@ -42,8 +62,8 @@ export const PluginManager: Component = () => {
           version: "1.0.0",
           description: "An example plugin to demonstrate the WASM Sandbox boundaries.",
           entrypoint: "module.wasm",
-          permissions: ["IntentExecution", "NetworkAccess"]
-        }
+          permissions: ["IntentExecution", "NetworkAccess"],
+        },
       ]);
       setIsLoading(false);
     }, 500);
@@ -52,11 +72,16 @@ export const PluginManager: Component = () => {
   return (
     <section class="sp-card" aria-labelledby="plugin-heading">
       <div class="sp-card-header">
-        <span class="sp-card-icon"><IconPlug /></span>
-        <h2 class="sp-card-title" id="plugin-heading">Plugin SDK (WASM Sandbox)</h2>
+        <span class="sp-card-icon">
+          <IconPlug />
+        </span>
+        <h2 class="sp-card-title" id="plugin-heading">
+          Plugin SDK (WASM Sandbox)
+        </h2>
       </div>
       <p class="sp-hint" style="margin-bottom: 1rem;">
-        Unprivileged WASM plugins can extend CNTRL safely. Plugins run in a secure sandbox without arbitrary filesystem or shell access.
+        Unprivileged WASM plugins can extend CNTRL safely. Plugins run in a secure sandbox without
+        arbitrary filesystem or shell access.
       </p>
 
       <div class="pm-plugin-list">
@@ -70,7 +95,7 @@ export const PluginManager: Component = () => {
                     <span class="pm-plugin-version">v{plugin.version}</span>
                   </div>
                   <p class="pm-plugin-desc">{plugin.description || "No description provided."}</p>
-                  
+
                   <div class="pm-plugin-permissions">
                     <div class="pm-permissions-title">
                       <IconShield />
@@ -78,9 +103,7 @@ export const PluginManager: Component = () => {
                     </div>
                     <ul class="pm-permissions-list">
                       <For each={plugin.permissions}>
-                        {(perm) => (
-                          <li class="pm-permission-badge">{perm}</li>
-                        )}
+                        {(perm) => <li class="pm-permission-badge">{perm}</li>}
                       </For>
                     </ul>
                   </div>
