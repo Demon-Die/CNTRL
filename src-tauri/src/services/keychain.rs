@@ -12,7 +12,8 @@
 //! immediately before use.
 
 use keyring::Entry;
-use std::sync::OnceLock;
+use std::collections::HashMap;
+use std::sync::{OnceLock, RwLock};
 
 use crate::error::CntrlError;
 use crate::services::memory::db::AppDb;
@@ -20,6 +21,13 @@ use crate::services::memory::db::AppDb;
 pub const APP_SERVICE: &str = "cntrl-browser";
 
 static DB_INSTANCE: OnceLock<AppDb> = OnceLock::new();
+
+// Fallback in-memory storage if OS Keychain fails
+static FALLBACK_STORAGE: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
+
+fn get_fallback() -> &'static RwLock<HashMap<String, String>> {
+    FALLBACK_STORAGE.get_or_init(|| RwLock::new(HashMap::new()))
+}
 
 pub fn init_audit_db(db: AppDb) {
     let _ = DB_INSTANCE.set(db);
@@ -40,36 +48,61 @@ fn log_access(key: &str, access_type: &str) {
 
 pub fn store_secret(key: &str, value: &str) -> Result<(), CntrlError> {
     log_access(key, "write");
-    let entry = Entry::new(APP_SERVICE, key)
-        .map_err(|e| CntrlError::Keychain(format!("Failed to create keychain entry: {e}")))?;
-    entry
-        .set_password(value)
-        .map_err(|e| CntrlError::Keychain(format!("Failed to store secret '{key}': {e}")))
+    let entry_result = Entry::new(APP_SERVICE, key);
+    
+    match entry_result {
+        Ok(entry) => {
+            if let Err(e) = entry.set_password(value) {
+                eprintln!("Keychain store failed, falling back to memory for {}: {}", key, e);
+                get_fallback().write().unwrap().insert(key.to_string(), value.to_string());
+            }
+            Ok(())
+        },
+        Err(e) => {
+            eprintln!("Keychain init failed, falling back to memory for {}: {}", key, e);
+            get_fallback().write().unwrap().insert(key.to_string(), value.to_string());
+            Ok(())
+        }
+    }
 }
 
 pub fn retrieve_secret(key: &str) -> Result<String, CntrlError> {
     log_access(key, "read");
+    
+    // First try the fallback memory
+    if let Some(val) = get_fallback().read().unwrap().get(key) {
+        return Ok(val.clone());
+    }
+
     let entry = Entry::new(APP_SERVICE, key)
         .map_err(|e| CntrlError::Keychain(format!("Failed to create keychain entry: {e}")))?;
-    entry
-        .get_password()
-        .map_err(|e| CntrlError::Keychain(format!("Failed to retrieve secret '{key}': {e}")))
+    
+    entry.get_password().map_err(|e| CntrlError::Keychain(format!("Failed to retrieve secret '{key}': {e}")))
 }
 
 pub fn delete_secret(key: &str) -> Result<(), CntrlError> {
     log_access(key, "delete");
+    
+    // Remove from fallback if present
+    get_fallback().write().unwrap().remove(key);
+
     let entry = Entry::new(APP_SERVICE, key)
         .map_err(|e| CntrlError::Keychain(format!("Failed to create keychain entry: {e}")))?;
+        
     match entry.delete_credential() {
         Ok(()) => Ok(()),
         Err(keyring::Error::NoEntry) => Ok(()),
-        Err(e) => Err(CntrlError::Keychain(format!(
-            "Failed to delete secret '{key}': {e}"
-        ))),
+        Err(e) => {
+            eprintln!("Keychain delete failed, but removed from fallback for {}: {}", key, e);
+            Ok(())
+        }
     }
 }
 
 pub fn secret_exists(key: &str) -> bool {
+    if get_fallback().read().unwrap().contains_key(key) {
+        return true;
+    }
     retrieve_secret(key).is_ok()
 }
 
