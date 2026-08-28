@@ -25,25 +25,10 @@ function App() {
     document.documentElement.setAttribute("data-theme", theme());
   });
 
-  onMount(async () => {
-    await initAiStore();
-    await macroActions.init();
-    await browserActions.fetchTabs();
-    if (browserState.tabs.length === 0) {
-      await browserActions.openTab("cntrl://home");
-    }
-
-    const consentAccepted = localStorage.getItem("cntrl_consent_accepted");
-    if (!consentAccepted) {
-      setShowConsent(true);
-    }
-
-    const unlistenCmdW = await listen<null>("cmd-w", () => {
-      if (browserState.activeTabId) {
-        browserActions.closeTab(browserState.activeTabId);
-      }
-    });
-
+  onMount(() => {
+    // Register onCleanup synchronously at the top of onCleanup scope,
+    // before any async execution. In SolidJS, onCleanup must be called
+    // synchronously within the reactive scope to register properly.
     const handler = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return;
 
@@ -75,10 +60,33 @@ function App() {
     };
 
     window.addEventListener("keydown", handler);
+
+    let unlistenCmdW: (() => void) | undefined;
     onCleanup(() => {
-      unlistenCmdW();
+      unlistenCmdW?.();
       window.removeEventListener("keydown", handler);
     });
+
+    // Async initialization — runs after synchronous onCleanup is registered
+    void (async () => {
+      await initAiStore();
+      await macroActions.init();
+      await browserActions.fetchTabs();
+      if (browserState.tabs.length === 0) {
+        await browserActions.openTab("cntrl://home");
+      }
+
+      const consentAccepted = localStorage.getItem("cntrl_consent_accepted");
+      if (!consentAccepted) {
+        setShowConsent(true);
+      }
+
+      unlistenCmdW = await listen<null>("cmd-w", () => {
+        if (browserState.activeTabId) {
+          browserActions.closeTab(browserState.activeTabId);
+        }
+      });
+    })();
   });
 
   const handleAcceptConsent = () => {
