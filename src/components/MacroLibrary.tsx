@@ -150,7 +150,10 @@ export const MacroLibrary: Component<MacroLibraryProps> = (props) => {
                                 </button>
                                 <button
                                   class="btn-secondary"
-                                  onClick={() => setActiveScheduleId(null)}
+                                  onClick={() => {
+                                    setActiveScheduleId(null);
+                                    setScheduleCron("");
+                                  }}
                                 >
                                   Cancel
                                 </button>
