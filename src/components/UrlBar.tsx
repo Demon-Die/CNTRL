@@ -74,19 +74,31 @@ export const UrlBar: Component = () => {
       if (!url) return;
 
       if (
-        !url.startsWith("http://") &&
-        !url.startsWith("https://") &&
-        !url.startsWith("cntrl://")
+        url.startsWith("http://") ||
+        url.startsWith("https://") ||
+        url.startsWith("cntrl://")
       ) {
+        // Already has a protocol — navigate directly
+        try {
+          const parsed = new URL(url);
+          parsed.hostname = parsed.hostname.toLowerCase();
+          url = parsed.toString();
+        } catch {
+          void 0;
+        }
+      } else if (/^[^\s]+\.[a-zA-Z]{2,}/.test(url) && !url.includes(" ")) {
+        // Looks like a bare domain (e.g. "example.com") — prepend https
         url = `https://${url}`;
-      }
-
-      try {
-        const parsed = new URL(url);
-        parsed.hostname = parsed.hostname.toLowerCase();
-        url = parsed.toString();
-      } catch {
-        void 0;
+        try {
+          const parsed = new URL(url);
+          parsed.hostname = parsed.hostname.toLowerCase();
+          url = parsed.toString();
+        } catch {
+          void 0;
+        }
+      } else {
+        // Natural language query — route to DuckDuckGo search
+        url = `https://duckduckgo.com/?q=${encodeURIComponent(url)}`;
       }
 
       setInputUrl(url);
