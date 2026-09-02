@@ -26,23 +26,7 @@ function App() {
   });
 
   onMount(async () => {
-    await initAiStore();
-    await macroActions.init();
-    await browserActions.fetchTabs();
-    if (browserState.tabs.length === 0) {
-      await browserActions.openTab("cntrl://home");
-    }
-
-    const consentAccepted = localStorage.getItem("cntrl_consent_accepted");
-    if (!consentAccepted) {
-      setShowConsent(true);
-    }
-
-    const unlistenCmdW = await listen<null>("cmd-w", () => {
-      if (browserState.activeTabId) {
-        browserActions.closeTab(browserState.activeTabId);
-      }
-    });
+    let unlistenCmdW: UnlistenFn | undefined;
 
     const handler = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return;
@@ -75,16 +59,30 @@ function App() {
     };
 
     window.addEventListener("keydown", handler);
-    onCleanup(() => {
-      unlistenCmdW();
-      window.removeEventListener("keydown", handler);
-    });
+  onCleanup(() => {
+    if (unlistenCmdW) unlistenCmdW();
+    window.removeEventListener("keydown", handler);
   });
 
-  const handleAcceptConsent = () => {
-    localStorage.setItem("cntrl_consent_accepted", "true");
-    setShowConsent(false);
-  };
+  await initAiStore();
+  await macroActions.init();
+  await browserActions.fetchTabs();
+  
+  if (browserState.tabs.length === 0) {
+    await browserActions.openTab("cntrl://home");
+  }
+  
+  const consentAccepted = localStorage.getItem("cntrl_consent_accepted");
+  if (!consentAccepted) {
+    setShowConsent(true);
+  }
+  
+  unlistenCmdW = await listen<null>("cmd-w", () => {
+    if (browserState.activeTabId) {
+      browserActions.closeTab(browserState.activeTabId);
+    }
+  });
+});
 
   return (
     <div class="app-container">
